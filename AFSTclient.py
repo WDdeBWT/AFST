@@ -11,7 +11,10 @@ import socket
 from multiprocessing import Queue
 
 class AFSTclient:
-    def __init__(self, server_ip = '119.23.239.27', server_port = 9999):
+    def __init__(self):
+        self.cache_path = 'F:\\Files\\AFST_cache'
+    
+    def get_connection(self, server_ip = '119.23.239.27', server_port = 9999):
         self.q_recv = Queue(maxsize = 10)
         self.tcp_conn = TcpConnecter(self.q_recv, server_ip, server_port)
         self.tcp_conn.start()
@@ -29,3 +32,22 @@ class AFSTclient:
             self.tcp_conn.end_thread()
             os.system('pause')
             sys.exit(1)
+    
+    def get_file_list(self):
+        i = 0
+        file_list_cachepath = os.path.join(self.cache_path, 'FileListClient.txt')
+        with open(file_list_cachepath, 'r') as r:
+            for line in r.readlines():
+                print(line)
+    
+    def commit_all_file(self):
+        pass
+    
+    def commit_one_file(self):
+        pass
+    
+    def get_history_edition(self):
+        pass
+
+afst = AFSTclient()
+afst.get_file_list()
