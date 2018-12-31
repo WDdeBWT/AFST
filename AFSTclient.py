@@ -6,14 +6,25 @@ from TCP_connecter import *
 
 import os
 import sys
+import csv
 import time
 import socket
 from multiprocessing import Queue
 
 class AFSTclient:
     def __init__(self):
-        self.cache_path = 'F:\\Files\\AFST_cache'
-    
+        self.cache_path = 'AFST_cache/imf.csv'
+        if not os.path.exists('AFST_cache'):
+            os.mkdir('AFST_cache')
+        if not os.path.exists('AFST_cache/imf.csv'):
+            write_list = [['Name', 'Type', 'Time']]
+            with open('AFST_cache/imf.csv', 'w', newline="") as w:
+                writer = csv.writer(w)
+                for line in write_list:
+                    writer.writerow(line)
+        else:
+            pass
+
     def get_connection(self, server_ip = '119.23.239.27', server_port = 9999):
         self.q_recv = Queue(maxsize = 10)
         self.tcp_conn = TcpConnecter(self.q_recv, server_ip, server_port)
@@ -34,11 +45,20 @@ class AFSTclient:
             sys.exit(1)
     
     def get_file_list(self):
-        i = 0
-        file_list_cachepath = os.path.join(self.cache_path, 'FileListClient.txt')
-        with open(file_list_cachepath, 'r') as r:
-            for line in r.readlines():
-                print(line)
+        crt_path = os.getcwd()
+        with open('AFST_cache/imf.csv', 'a', newline="") as a:
+            writer = csv.writer(a)
+            for root, dirs, files in os.walk(os.getcwd()):
+                root = root.replace(crt_path, '')
+                if root == 'AFST_cache':
+                    continue
+                if not root == '':
+                    writer.writerow([root, 'folder', int(time.time())])
+                for one_file in files:
+                    writer.writerow([root + '\\' + one_file, 'file', int(time.time())])
+                # print(root) # 当前目录路径
+                # print(dirs) # 当前路径下的所有子目录
+                # print(files) # 当前目录下的所有非目录子文件
     
     def commit_all_file(self):
         pass
