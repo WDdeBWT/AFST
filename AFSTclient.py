@@ -14,8 +14,10 @@ from multiprocessing import Queue
 
 class AFSTclient:
     def __init__(self):
-        self.OF_list = []
-        self.NF_list = []
+        self.OF_list = [] # Old file list
+        self.NF_list = [] # New file list
+        self.OF_dict = {} # Old file dict
+        self.CG_list = [] # Change file list
         self.cache_path = 'AFST_cache/imf.csv'
         if not os.path.exists('AFST_cache'):
             os.mkdir('AFST_cache')
@@ -29,25 +31,6 @@ class AFSTclient:
             writer = csv.writer(w)
             for line in write_list:
                 writer.writerow(line)
-
-    # def get_connection(self, server_ip = '119.23.239.27', server_port = 9999):
-    #     self.q_recv = Queue(maxsize = 10)
-    #     self.tcp_conn = TcpConnecter(self.q_recv, server_ip, server_port)
-    #     self.tcp_conn.start()
-    #     try:
-    #         recv = self.q_recv.get(block=True, timeout=1800)
-    #         if recv[0] == 1:
-    #             print(recv[1])
-    #         else:
-    #             print("error 1")
-    #             os.system('pause')
-    #             sys.exit(1)
-    #     except Exception as e:
-    #         print(e)
-    #         print("----------ERROR1: 连接服务器失败，请关闭程序，稍后再试----------")
-    #         self.tcp_conn.end_thread()
-    #         os.system('pause')
-    #         sys.exit(1)
     
     def get_new_file_list(self):
         crt_path = os.getcwd()
@@ -73,6 +56,14 @@ class AFSTclient:
                     writer.writerow(one_line)
                     self.NF_list.append(one_line)
     
+    def ON_list_compare(self):
+        # Old & new file list compare
+        for O_item in self.OF_list:
+            self.OF_dict[O_item[0]] = O_item
+        for N_item in self.NF_list:
+            if not self.OF_dict.get(N_item[0])[3] == N_item[3]:
+                self.CG_list.append(N_item)
+    
     def commit_all_file(self):
         pass
     
@@ -82,5 +73,8 @@ class AFSTclient:
     def get_history_edition(self):
         pass
 
-afst = AFSTclient()
-afst.get_new_file_list()
+
+if __name__ == '__main__':
+    afst = AFSTclient()
+    afst.get_new_file_list()
+    afst.ON_list_compare()
